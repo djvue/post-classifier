@@ -35,3 +35,4 @@ jobs:
   call-build-and-deploy:
     uses: ./.github/workflows/build-and-deploy.yml
     needs: train_and_deploy_model
+    secrets: inherit
