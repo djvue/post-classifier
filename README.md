@@ -1,4 +1,4 @@
-# HW3: docker project
+# Post classifier
 
 ## Описание модели и этапов сборки
 
