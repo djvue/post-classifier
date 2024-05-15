@@ -51,7 +51,7 @@ jobs:
 
   deploy:
     name: Deploy to prod host
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     environment: prod
     env:
