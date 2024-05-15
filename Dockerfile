@@ -10,6 +10,8 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 
 COPY ./requirements.txt ./requirements.txt
 
+RUN apt -y update && apt install -y gcc
+
 RUN pip3 install --user -r requirements.txt
 
 FROM python:3.11-slim as final
@@ -25,8 +27,7 @@ COPY . .
 
 ENV PATH=/root/.local/bin:$PATH
 
-RUN python train_model.py && \
-    rm data/test.csv data/train.csv
+RUN python ntlk_download.py
 
 EXPOSE 8000
 

@@ -73,8 +73,8 @@ uvicorn app:app --reload
 В Dockerfile происходит установка всех зависимостей и обучение модели.
 
 ```sh
-docker build -t post-classifier .
-docker run --rm post-classifier
+docker build -t post-classifier --build-arg="DVC_S3_ACCESS_KEY=***" --build-arg="DVC_S3_SECRET_KEY=***" .
+docker run --rm -v $PWD/data:/app/data post-classifier
 ```
 
 ### Docker Compose

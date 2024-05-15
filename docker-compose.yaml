@@ -2,5 +2,7 @@ services:
   app:
     image: mlops_hw3:latest
     build: .
+    volumes:
+      - "./data:/app/data"
     ports:
       - "8000:8000"
