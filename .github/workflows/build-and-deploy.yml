@@ -5,8 +5,8 @@ on: [push, pull_request]
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
+    environment: prod
     env:
       docker_registry_user: ${{ secrets.CI_REGISTRY_USER }}
       docker_registry_password: ${{ secrets.CI_REGISTRY_PASSWORD }}
@@ -29,6 +29,7 @@ jobs:
     name: Lint and test
     needs: [build]
     runs-on: ubuntu-latest
+    environment: prod
     env:
       image: djvue/urfu-deployments:post-classifier-${{ github.sha }}
     steps:
@@ -52,6 +53,7 @@ jobs:
     name: Deploy to prod host
     needs: build
     runs-on: ubuntu-latest
+    environment: prod
     env:
       dir: /opt/post-classifier
       image: djvue/urfu-deployments:post-classifier-${{ github.sha }}
