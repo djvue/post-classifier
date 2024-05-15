@@ -38,11 +38,11 @@ jobs:
     #- name: Flake8
     #  run: docker run --rm --entrypoint /bin/bash -t $image -c "flake8"
     - name: Download datasets
-      run: mkdir data && docker run --rm \
-        -v $PWD/data:/app/data \
-        --entrypoint /bin/bash \
-        -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\" \
-        && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\" \
+      run: mkdir data && docker run --rm
+        -v $PWD/data:/app/data
+        --entrypoint /bin/bash
+        -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\"
+        && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\"
         && dvc pull"
     - name: Train model
       run: docker run --rm --entrypoint /bin/bash -t $image -c "python train_model.py"
@@ -70,10 +70,10 @@ jobs:
             cd $dir
             mkdir -p data
             docker run --rm \
-              -v $PWD/data:/app/data \
-              --entrypoint /bin/bash \
-              -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\" \
-                && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\" \
+              -v $PWD/data:/app/data
+              --entrypoint /bin/bash
+              -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\"
+                && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\"
                 && dvc pull"
             ls -al data
       - name: Deploy image
