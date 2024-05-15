@@ -43,12 +43,11 @@ jobs:
         --entrypoint /bin/bash
         -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\"
         && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\"
-        && cat .dvc/config.local
         && dvc pull"
-    - name: Train model
-      run: docker run --rm --entrypoint /bin/bash -t $image -c "python train_model.py"
+    - name: Test model training model
+      run: docker run --rm -v $PWD/data:/app/data --entrypoint /bin/bash -t $image -c "python train_model.py"
     - name: Tests
-      run: docker run --rm --entrypoint /bin/bash -t $image -c "python -m pytest"
+      run: docker run --rm -v $PWD/data:/app/data --entrypoint /bin/bash -t $image -c "python -m pytest"
 
   deploy:
     name: Deploy to prod host
