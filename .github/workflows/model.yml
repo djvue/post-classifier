@@ -22,7 +22,7 @@ jobs:
       run: docker run --rm -v $PWD/data:/app/data --entrypoint /bin/bash -t $image -c "python train_model.py"
     - name: Add models to dvc
       run: docker run --rm
-        -v $PWD/data:/app/data
+        -v $PWD:/app
         --entrypoint /bin/bash
         -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\"
         && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\"
@@ -31,4 +31,7 @@ jobs:
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: ML model update
-    # after this commit project redeploy will be triggered automatically
+
+  call-build-and-deploy:
+    uses: ./.github/workflows/build-and-deploy.yml
+    needs: train_and_deploy_model

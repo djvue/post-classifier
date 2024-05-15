@@ -1,6 +1,10 @@
 name: Build test and deploy
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
 
@@ -20,9 +24,9 @@ jobs:
       run: docker login -u $docker_registry_user -p "$docker_registry_password"
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag $image
-    - name: Push the Docker streamlit image
+    - name: Add latest tag to image
       run: docker tag $image $image_latest
-    - name: Push the Docker streamlit image
+    - name: Push all tags
       run: docker push --all-tags $base_image
 
   test:
@@ -55,11 +59,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     env:
-      dir: /opt/post-classifier
-      image: djvue/urfu-deployments:post-classifier-${{ github.sha }}
+      DIR: /opt/post-classifier
+      IMAGE: djvue/urfu-deployments:post-classifier-${{ github.sha }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v2
       - name: Download model
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -67,17 +70,18 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: DIR,IMAGE
           script: |
-            cd $dir
+            echo "dir: $DIR, image: $IMAGE"
+            cd $DIR
             mkdir -p data
-            docker run --rm
-              -v $PWD/.dvc:/app/.dvc
-              -v $PWD/data:/app/data
-              --entrypoint /bin/bash
-              -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\"
-                && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\"
-                && cat .dvc/config.local
-                && dvc pull"
+            docker run --rm \
+              -v $PWD/data:/app/data \
+              --entrypoint /bin/bash \
+              -t $IMAGE -c '\
+                dvc remote modify --local minio access_key_id "${{ secrets.DVC_S3_ACCESS_KEY }}" \
+                && dvc remote modify --local minio secret_access_key "${{ secrets.DVC_S3_SECRET_KEY }}" \
+                && dvc pull'
             ls -al data
       - name: Deploy image
         uses: appleboy/ssh-action@v1.0.3
@@ -86,6 +90,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: IMAGE
           script: |
-            whoami
-            ls -al
+            kubectl set image -n urfu deploy/post-classifier app=$IMAGE
+            kubectl rollout status -n urfu deploy/post-classifier --timeout 5m

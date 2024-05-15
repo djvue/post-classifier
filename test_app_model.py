@@ -11,24 +11,24 @@ def predictor():
 
 
 def test_predict_positive(predictor):
-    text = "This is a great movie!"
+    text = "Happy to be back doing what I love :))"
     prediction = predictor.predict(text)
     assert prediction == "Positive"  # Положительный отзыв
 
 
 def test_predict_negative(predictor):
-    text = "This movie was terrible, a waste of time."
+    text = "CSGO matchmaking is so full of closet hacking, it's a truly awful game."
     prediction = predictor.predict(text)
     assert prediction == 'Negative'  # Отрицательный отзыв
 
 
 def test_predict_neutral(predictor):
-    text = "Movie"
+    text = "Playing fifa with my girl.  She got her first goal against me and someone won’t shut up 😩"
     prediction = predictor.predict(text)
     assert prediction == "Neutral"  # Нейтральный отзыв
 
 
-# def test_predict_empty_string(predictor):
-#     text = "19 years old"
-#     prediction = predictor.predict(text)
-#     assert prediction == "Irrelevant"  # Irrelevant
+def test_predict_irrelevant(predictor):
+    text = "Flip The Fuck Out!!!! Cyklon30001189  just joined the Kingdom on Mixer mixer.com/deduke #mixerPartner #mixer #streamer #Xbox #CallofDuty"
+    prediction = predictor.predict(text)
+    assert prediction == "Irrelevant"  # Irrelevant
