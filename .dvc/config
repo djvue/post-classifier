@@ -1,4 +1,5 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = gdrive://1Y02_Au0yNhZOuMc3VcGrr0FA2YS9B2EZ
+    remote = minio
+['remote "minio"']
+    url = s3://urfu/post-classifier
+    endpointurl = https://minio-api.nordpatriot.ru

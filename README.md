@@ -73,12 +73,27 @@ uvicorn app:app --reload
 В Dockerfile происходит установка всех зависимостей и обучение модели.
 
 ```sh
-docker build -t mlops_hw3 .
-docker run --rm mlops_hw3
+docker build -t post-classifier .
+docker run --rm post-classifier
 ```
 
 ### Docker Compose
 
 ```sh
 docker-compose up -d
+```
+
+### Работа DVC
+
+Сначала нужно добавить креды для хранилища S3 в minio
+```sh
+dvc remote modify --local minio access_key_id '***'
+dvc remote modify --local minio secret_access_key '***'
+```
+
+`***` подменить на секреты
+
+Дальше можно скачать датасет командой
+```sh
+dvc pull
 ```
