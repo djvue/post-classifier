@@ -43,6 +43,30 @@ POST /api/sentiment
 
 Текст пропускается через векторизатор и передается модели для получения предсказания.
 
+## Pipeline и production среда
+
+Сервис развернут по адресу https://post-classifier.ml.webtm.ru/_info
+
+Для деплоя используются github actions. Представлены 2 workflow:
+- `build-and-deploy.yml`
+  - build: сборка docker образа и сохранение в docker registry
+  - test: прогоняются все имеющиеся тесты
+  - deploy: деплой модели в production среду и деплой нового docker образа.
+  Сервис развернут в кластере kubernetes, образ подменяется командой `kubectl set image`
+- `model.yml`
+Происходит скачивание датасетов с использованием dvc (c s3 minio хранилищеv), обучение модели,
+сохранение результатов в dvc, создание коммита с обученной моделью в текущую ветку.
+Дальше триггерится основной пайплайн `build-and-deploy.yml`
+
+`build-and-deploy.yml` запускается на событие push в репозиторий github.
+
+`model.yml` можно запустить через веб-интерфейс или CLI github.
+Автоматический запуск не сделан из-за того, что достаточно редко нужно переобучать модель,
+и необходимо избегать создание большого количества автоматических коммитов.
+
+Deployment, service, ingress описаны в отдельном закрытом репозитории.
+Кластер развернут на виртуальном сервисе провайдера timeweb.
+
 ## Сборка и разворачивание в локальной среде
 
 API веб сервера будет доступно по адресу http://localhost:8000/.
@@ -73,7 +97,7 @@ uvicorn app:app --reload
 В Dockerfile происходит установка всех зависимостей и обучение модели.
 
 ```sh
-docker build -t post-classifier --build-arg="DVC_S3_ACCESS_KEY=***" --build-arg="DVC_S3_SECRET_KEY=***" .
+docker build -t post-classifier .
 docker run --rm -v $PWD/data:/app/data post-classifier
 ```
 
@@ -97,3 +121,4 @@ dvc remote modify --local minio secret_access_key '***'
 ```sh
 dvc pull
 ```
+
