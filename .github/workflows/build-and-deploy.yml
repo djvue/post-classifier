@@ -59,6 +59,7 @@ jobs:
       image: djvue/urfu-deployments:post-classifier-${{ github.sha }}
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v2
       - name: Download model
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -69,11 +70,13 @@ jobs:
           script: |
             cd $dir
             mkdir -p data
-            docker run --rm \
+            docker run --rm
+              -v $PWD/.dvc:/app/.dvc
               -v $PWD/data:/app/data
               --entrypoint /bin/bash
               -t $image -c "dvc remote modify --local minio access_key_id \"${{ secrets.DVC_S3_ACCESS_KEY }}\"
                 && dvc remote modify --local minio secret_access_key \"${{ secrets.DVC_S3_SECRET_KEY }}\"
+                && cat .dvc/config.local
                 && dvc pull"
             ls -al data
       - name: Deploy image
